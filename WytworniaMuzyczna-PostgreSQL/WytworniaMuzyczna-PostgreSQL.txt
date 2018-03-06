@@ -1,0 +1,498 @@
+CREATE TABLE Adres(
+    id                  SERIAL          PRIMARY KEY,
+    miejscowosc         VARCHAR(25)     NOT NULL CHECK(LENGTH(miejscowosc)>2),
+    ulica               VARCHAR(25)     NOT NULL CHECK(LENGTH(ulica)>2),
+    numer_budynku       VARCHAR(6)      NOT NULL,
+    numer_mieszkania    INTEGER,
+    kod_pocztowy        VARCHAR(10)     NOT NULL CHECK(LENGTH(kod_pocztowy)>4)
+);
+ 
+CREATE TABLE Menadzer(
+    id                  SERIAL          PRIMARY KEY,
+    imie                VARCHAR(25)     NOT NULL CHECK(LENGTH(imie)>2),
+    nazwisko            VARCHAR(25)     NOT NULL CHECK(LENGTH(nazwisko)>2),
+    telefon             INTEGER         NOT NULL,
+    Adres_id            INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE,
+    staz                INTEGER         NOT NULL DEFAULT(0)
+);
+ 
+ 
+ 
+CREATE TABLE Artysta(
+    id                  SERIAL          PRIMARY KEY,
+    imie                VARCHAR(25)     NOT NULL CHECK(LENGTH(imie)>2),
+    nazwisko            VARCHAR(25)     NOT NULL CHECK(LENGTH(nazwisko)>2),
+    telefon             INTEGER         NOT NULL,
+    gatunek             VARCHAR(15)     NOT NULL CHECK(LENGTH(gatunek)>2),
+    Adresy_id           INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE,
+    Menadzer_id         INTEGER         REFERENCES Menadzer(id) ON UPDATE CASCADE,
+    bonus               INTEGER         DEFAULT(0),
+    rok_dolaczenia      INTEGER         NOT NULL
+);
+ 
+ 
+CREATE TABLE Album(
+    id                  SERIAL          PRIMARY KEY,
+    nazwa               VARCHAR(20)     NOT NULL UNIQUE CHECK(LENGTH(nazwa)>3) ,
+    data_wydania        DATE            NOT NULL DEFAULT NOW(),
+    dlugosc             INTEGER         NOT NULL,
+    Artysta_id          INTEGER         REFERENCES Artysta(id) ON UPDATE CASCADE
+);
+ 
+ 
+CREATE TABLE Dystrybutor(
+    id                  SERIAL          PRIMARY KEY,
+    nazwa               VARCHAR(20)     NOT NULL UNIQUE,
+    kraj                VARCHAR(15)     NOT NULL,
+    telefon             INTEGER         NOT NULL,
+    email               VARCHAR(25)     NOT NULL UNIQUE,
+    Adres_id            INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE,
+    kontynent           VARCHAR(30),
+    rabat               INTEGER
+);
+ 
+ 
+CREATE TABLE Producent(
+    id                  SERIAL          PRIMARY KEY,
+    imie                VARCHAR(15)     NOT NULL CHECK(LENGTH(imie)>2),
+    nazwisko            VARCHAR(20)     NOT NULL CHECK(LENGTH(nazwisko)>2),
+    telefon             INTEGER         NOT NULL,
+    email               VARCHAR(25)     NOT NULL UNIQUE,
+    Adres_id            INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE
+);
+           
+ 
+CREATE TABLE Mastering(
+    id                  SERIAL          PRIMARY KEY,
+    nazwa               VARCHAR(20)     NOT NULL UNIQUE,
+    telefon             INTEGER         NOT NULL,
+    email               VARCHAR(25)     NOT NULL UNIQUE,
+    Adres_id            INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE
+);
+ 
+ 
+CREATE TABLE Studio_Nagraniowe(
+    id                  SERIAL          PRIMARY KEY,
+    nazwa               VARCHAR(20)     NOT NULL UNIQUE,
+    telefon             INTEGER         NOT NULL,
+    email               VARCHAR(25)     NOT NULL UNIQUE,
+    Adres_id            INTEGER         REFERENCES Adres(id) ON UPDATE CASCADE
+);
+ 
+ 
+CREATE TABLE Rezerwacja_Studia(
+    id                      SERIAL          PRIMARY KEY,
+    data                    DATE            NOT NULL DEFAULT NOW(),
+    Studio_Nagraniowe_id    INTEGER         REFERENCES Studio_Nagraniowe(id) ON UPDATE CASCADE,
+    Artysta_id              INTEGER         REFERENCES Artysta(id) ON UPDATE CASCADE
+);
+ 
+ 
+CREATE TABLE Album_Wydany(
+    Album_id                INTEGER             REFERENCES Album(id) ON UPDATE CASCADE,
+    Dystrybutor_id          INTEGER             REFERENCES Dystrybutor(id) ON UPDATE CASCADE,
+    Producent_id            INTEGER             REFERENCES Producent(id) ON UPDATE CASCADE,
+    Studio_Nagraniowe_id    INTEGER             REFERENCES Studio_Nagraniowe(id) ON UPDATE CASCADE,
+    Mastering_id            INTEGER             REFERENCES Mastering(id) ON UPDATE CASCADE,
+ 
+    CONSTRAINT PK_Album_Wydany PRIMARY KEY(Album_id, Dystrybutor_id, Producent_id, Studio_Nagraniowe_id,
+    Mastering_id)
+);
+ 
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Berlin', 'Konstanzer Strasse', '71', 5, '35647');
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Ampfing', 'Kieler Srasse', '20', 2, '84536');
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Montreal', 'Rene-Levesque', '193', 6, '54856');
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Warszawa', 'Aleje Jerozolimskie', '55', 2, '02-011');
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Kraków', 'Debowa', '40', 1, '43-300');
+ 
+ 
+INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
+VALUES('Adam', 'Deby', 791584568, 2,2);
+ 
+INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
+VALUES('Michal', 'Wisniewski', 584754568, 1, 1);
+ 
+INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
+VALUES('Mikhail', 'Krakov', 795424568, 3, 7);
+ 
+INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
+VALUES('Nathaniel', 'Sernik', 874584568, 5, 4);
+ 
+INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
+VALUES('Michael', 'Crook', 884568, 4, 0);
+ 
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,rok_dolaczenia)
+VALUES('Matthew', 'Bellamy', 3242412, 'rock', 2, 1, 1997);
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,rok_dolaczenia)
+VALUES('Michael', 'Jackson', 24324543, 'pop', 3, 3, 2002);
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,rok_dolaczenia)
+VALUES('Sarsa', 'Markiewicz', 24324521, 'pop', 1, 2, 2014);
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,rok_dolaczenia)
+VALUES('Samuel', 'Jackson', 45224452, 'rock', 4, 5, 2012);
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,rok_dolaczenia)
+VALUES('Michal', 'Wisniewski', 6546234, 'pop', 5, 2, 2017);
+ 
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Origin of Symmetry', '2014-06-22', 45, 1);
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Shadowmoon', '2011-06-22', 45, 1);
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Markers', '2004-02-12', 55, 2);
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Amen', '2002-01-26', 34, 3);
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Droga', '2013-06-22', 46, 4);
+ 
+INSERT INTO Album(nazwa,data_wydania,dlugosc,Artysta_id)
+VALUES('Drive', '2015-09-11', 64, 5);
+ 
+ 
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id)
+VALUES('Step Records', 'Poland', 789456248, 'steprecords@gmail.com', 5);
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id)
+VALUES('Warner Music', 'Germany', 32245432, 'warner.germany@warner.com', 2);
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id)
+VALUES('Organek Records', 'Polska', 789456248, 'steprecordss@gmail.com', 4);
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id)
+VALUES('Global Records', 'Germany', 324113265, 'global.records@gmail.com', 2);
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id)
+VALUES('Universal Music', 'Canada', 36523413, 'universal.music@uni.com', 3);
+ 
+ 
+ 
+INSERT INTO Producent(imie,nazwisko,telefon,email,Adres_id)
+VALUES('Michal', 'Skarzynski', 784582485, 'm.skarz@gmail.com', 3);
+ 
+INSERT INTO Producent(imie,nazwisko,telefon,email,Adres_id)
+VALUES('Shawn', 'Morrison', 2351235, 's.morrison@gmail.com', 1);
+ 
+INSERT INTO Producent(imie,nazwisko,telefon,email,Adres_id)
+VALUES('Peter', 'Parker', 5382485, 'p.parker@gmail.com', 2);
+ 
+INSERT INTO Producent(imie,nazwisko,telefon,email,Adres_id)
+VALUES('Piotr', 'Polak', 334582485, 'piotr.polak@gmail.com', 5);
+ 
+INSERT INTO Producent(imie,nazwisko,telefon,email,Adres_id)
+VALUES('Sara', 'Larsson', 69854872, 'sara.larsson@gmail.com', 4);
+ 
+ 
+INSERT INTO Mastering(nazwa, telefon, email, Adres_id)
+VALUES('Mastering Ltd.', 48545468, 'mas.ltd@gmail.com', 1);
+ 
+INSERT INTO Mastering(nazwa, telefon, email, Adres_id)
+VALUES('Sterling Sound', 4234212, 'sterl.sound@gmail.com', 2);
+ 
+INSERT INTO Mastering(nazwa, telefon, email, Adres_id)
+VALUES('Bain', 5632435, 'bain@gmail.com', 3);
+ 
+INSERT INTO Mastering(nazwa, telefon, email, Adres_id)
+VALUES('Clio Sound', 113545468, 'clio.so@gmail.com', 4);
+ 
+INSERT INTO Mastering(nazwa, telefon, email, Adres_id)
+VALUES('Berk Sound', 66545468, 'berk.sd@gmail.com', 5);
+ 
+ 
+INSERT INTO Studio_Nagraniowe(nazwa,telefon,email,Adres_id)
+VALUES('Polskie Radio', 795845648, 'polskie.ra@gmail.com', 1);
+ 
+INSERT INTO Studio_Nagraniowe(nazwa,telefon,email,Adres_id)
+VALUES('Republica', 8654895, 'republica@gmail.com', 3);
+ 
+INSERT INTO Studio_Nagraniowe(nazwa,telefon,email,Adres_id)
+VALUES('TR Studios', 5345235, 'trstudios@gmail.com', 2);
+ 
+INSERT INTO Studio_Nagraniowe(nazwa,telefon,email,Adres_id)
+VALUES('Pasja Sounds', 2587458, 'pasja@gmail.com', 5);
+ 
+INSERT INTO Studio_Nagraniowe(nazwa,telefon,email,Adres_id)
+VALUES('Nonagram', 7633452, 'nonagram@gmail.com', 4);
+ 
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2014-05-22', 2, 1);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2013-01-22', 2, 1);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2010-02-11', 4, 2);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2011-02-15', 4, 2);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2005-04-21', 5, 4);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2015-09-28', 3, 3);
+ 
+INSERT INTO Rezerwacja_Studia(data, Studio_Nagraniowe_id, Artysta_id)
+VALUES('2001-01-01', 5, 5);
+ 
+ 
+INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_id,Mastering_id)
+VALUES(1, 2, 4, 2, 2);
+ 
+INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_id,Mastering_id)
+VALUES(5, 3, 4, 2, 1);
+ 
+INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_id,Mastering_id)
+VALUES(1, 2, 3, 2, 5);
+ 
+INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_id,Mastering_id)
+VALUES(2, 2, 4, 2, 2);
+ 
+INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_id,Mastering_id)
+VALUES(4, 3, 4, 2, 5);
+ 
+--1a) Tworzymy widok
+--Widok bêdzie pokazywa³ artystów, którzy rezerwowali przynajmniej dwa razy studio nagraniowe przed 2013 rokiem.
+ 
+CREATE VIEW ilosc_albumow_artystow
+AS
+SELECT a.imie, a.nazwisko, COUNT(a.id) AS ilosc_rezerwacji FROM Artysta a
+INNER JOIN Rezerwacja_Studia re ON a.id=re.Artysta_id WHERE (extract(year from re.data)<2013)
+GROUP BY a.imie, a.nazwisko
+HAVING COUNT(a.id)>=2;
+ 
+ 
+--1b) Sprawdzenie, ¿e widok dzia³a
+ 
+SELECT imie, nazwisko, ilosc_rezerwacji
+FROM ilosc_albumow_artystow
+ORDER BY ilosc_rezerwacji ASC;
+ 
+--2a) Tworzymy funkcje 1
+--Funkcja sprawdzaj¹ca czy dane studio ma wolny termin na rezerwacje po podaniu ID studia oraz daty.
+ 
+CREATE FUNCTION dostepna_rezerwacja(id_studia INTEGER, p_data DATE) RETURNS VARCHAR(30)
+AS $$
+DECLARE prawda VARCHAR(30);
+DECLARE falsz VARCHAR(30);
+BEGIN
+ 
+prawda:='Rezerwacja jest dostepna.';
+falsz:='Rezerwacja nie jest dostepna.';
+ 
+IF EXISTS(SELECT p_data FROM Rezerwacja_Studia WHERE p_data=$2) THEN
+    RETURN prawda;
+    ELSE
+    RETURN falsz;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+ 
+--2b) Sprawdzenie, ¿e funkcja 1 dzia³a
+ 
+SELECT * FROM dostepna_rezerwacja(5,'2009-01-01');
+ 
+--3a) Tworzymy funkcje 2
+--Funkcja zwracaj¹ca ³¹czn¹ d³ugoœæ trwania albumów danego artysty.
+ 
+CREATE FUNCTION dlugosc_albumow_artysty (id_artysty INTEGER) RETURNS INTEGER AS $$
+BEGIN
+RETURN (SELECT SUM(dlugosc) AS laczna_dlugosc FROM Album WHERE $1=Artysta_id);
+END;
+$$ LANGUAGE plpgsql;
+ 
+--3b) Sprawdzenie, ¿e funkcja 1 dzia³a
+ 
+SELECT dlugosc_albumow_artysty(1);
+ 
+--4a) Tworzymy procedure 1
+--Procedura dodaje nowego artyste do bazy danych.
+ 
+CREATE FUNCTION dodaj_artyste (imie VARCHAR(20),nazwisko VARCHAR(20),telefon INTEGER,
+gatunek VARCHAR(10),Adresy_id INTEGER,Menadzer_id INTEGER,rok_dolaczenia INTEGER) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id, rok_dolaczenia)
+    VALUES($1,$2,$3,$4,$5,$6,$7);
+END;
+$$ LANGUAGE plpgsql;
+ 
+--4b) Sprawdzenie, ?e procedura 1 dzia3a
+ 
+SELECT dodaj_artyste('Michal','Walcz',748548231,'rock',2,1,2002);
+SELECT * FROM Artysta;
+ 
+--5a) Tworzymy procedure 2
+--Procedura ukazuje liste menadzerow ze stazem rownym i wiekszym niz wprowadzona wartosc.
+--Niestety procedura nie dzia³a w poprawny sposób, jednak¿e nie by³em w stanie znaleŸæ rozwi¹zania problemu.
+ 
+CREATE FUNCTION lista_menadzerow(staz INT) RETURNS VOID AS $$
+BEGIN
+    DECLARE kursor_menadzerow CURSOR
+    FOR SELECT imie, nazwisko, staz FROM Menadzer;
+   
+   
+    DECLARE imie VARCHAR(20);
+    DECLARE nazwisko VARCHAR(20);
+    DECLARE staz INT;
+ 
+    OPEN kursor_menadzerow;
+ 
+    LOOP
+ 
+        FETCH kursor_menadzerow INTO imie, nazwisko, staz;
+        EXIT WHEN NOT FOUND;
+ 
+        IF (staz>=$1) THEN
+            RAISE NOTICE 'Menadzer: % %' ,imie,nazwisko;
+        END IF;
+    END LOOP;
+ 
+CLOSE kursor_menadzerow;
+END;
+$$ LANGUAGE plpgsql;
+ 
+--5b Sprawdzamy czy procedaura 2 dziala
+ 
+SELECT lista_menadzerow(3);
+ 
+--6a) Tworzymy wyzwalacz 1
+-- Zabrania dodawania duplikatu adresu.
+ 
+CREATE FUNCTION duplikat_adres()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS(SELECT 1 FROM Adres WHERE(miejscowosc,ulica,numer_budynku,
+    numer_mieszkania,kod_pocztowy) = (NEW.miejscowosc, NEW.ulica, NEW.numer_budynku,
+    NEW.numer_mieszkania, NEW.kod_pocztowy)) THEN
+        RETURN NULL;
+    END IF;
+   
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+ 
+CREATE TRIGGER ins_duplikat_adres
+BEFORE INSERT OR UPDATE OF miejscowosc,ulica,numer_budynku,numer_mieszkania,
+kod_pocztowy ON Adres
+FOR EACH ROW EXECUTE PROCEDURE duplikat_adres();
+ 
+--6b) Sprawdzenie, ?e wyzwalacz 1 dzia3a
+--Jeden ju¿ taki adres jest dodany, drugiego nie da siê dodaæ.
+ 
+INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
+VALUES('Berlin', 'Konstanzer Strasse', '71', 5, '35647');
+ 
+--7a) Tworzymy wyzwalacz 2
+--Kazdy nowy dodany artysta ma otrzymywaa pocz1tkowy bonus o warto?ci 5,
+--je?eli zostanie dodany mniejszy, ma bya on doprowadzony do wyniku 5.
+ 
+ 
+CREATE FUNCTION zwieksz_bonus_artyscie()
+RETURNS TRIGGER AS $$
+DECLARE bonuss INT;
+BEGIN
+bonuss:=NEW.bonus;
+    WHILE (bonuss<5) LOOP
+        UPDATE Artysta SET bonus=bonus+1 WHERE id=NEW.id;
+        bonuss:= (SELECT bonus FROM Artysta WHERE id=NEW.id);
+    END LOOP;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+ 
+CREATE TRIGGER ins_artysta_bonus
+AFTER INSERT OR UPDATE OF imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,
+bonus,rok_dolaczenia ON Artysta
+FOR EACH ROW EXECUTE PROCEDURE zwieksz_bonus_artyscie();
+   
+--7b) Sprawdzenie, ?e wyzwalacz 2 dzia3a
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,bonus, rok_dolaczenia)
+VALUES('Alvaro', 'Sofero', 6546234, 'pop', 5, 2,1,2014);
+ 
+SELECT * FROM Artysta;
+ 
+--8a) Tworzymy wyzwalacz 3
+--Wyzwalacz nie pozwala dodaa artysty z rokiem dodania pó?niejszym ni? obecny.
+ 
+ 
+CREATE FUNCTION rok_dodania_artysty()
+RETURNS TRIGGER AS $$
+DECLARE dodany_rok INT;
+DECLARE obecny_rok INT;
+BEGIN
+dodany_rok:=NEW.rok_dolaczenia;
+obecny_rok:=date_part('year', CURRENT_DATE);
+    IF (dodany_rok>obecny_rok) THEN
+        RETURN NULL;
+    END IF;
+   
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+ 
+CREATE TRIGGER ins_rok_dodania_artysty
+BEFORE INSERT OR UPDATE OF imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,
+bonus,rok_dolaczenia ON Artysta
+FOR EACH ROW EXECUTE PROCEDURE rok_dodania_artysty();
+ 
+--8b) Sprawdzenie, ?e wyzwalacz 3 dzia3a
+ 
+INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,bonus,rok_dolaczenia)
+VALUES('Artur', 'Warkocz', 2435845, 'pop', 1, 2,8, 2018);
+ 
+SELECT * FROM Artysta;
+ 
+--9a) Tworzymy wyzwalacz 4
+--Przyznajemy rabat dla dystrybutorow kwalifikuj1c ich ze wzgledu na kontynent.
+ 
+CREATE FUNCTION rabat_dystrybutorow_kontynentowy()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.kontynent='Europa') THEN
+        UPDATE Dystrybutor SET rabat=10 WHERE id=NEW.id;
+    END IF;
+   
+    IF (NEW.kontynent='Ameryka Pó³nocna') THEN
+        UPDATE Dystrybutor SET rabat=15 WHERE id=NEW.id;
+    END IF;
+ 
+    IF (NEW.kontynent='Azja') THEN
+        UPDATE Dystrybutor SET rabat=5 WHERE id=NEW.id;
+    END IF;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+ 
+CREATE TRIGGER ins_rabat_dystrybutorow_kontynentowy
+AFTER INSERT OR UPDATE OF nazwa,kraj,telefon,email,Adres_id,kontynent ON Dystrybutor
+FOR EACH ROW EXECUTE PROCEDURE rabat_dystrybutorow_kontynentowy();
+ 
+--9b) Sprawdzenie, ?e wyzwalacz 4 dzia3a
+ 
+INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id,kontynent)
+VALUES('Sony Music Japan', 'Japonia', 36523413, 'universal_ame@uni.com', 3,'Azja');
+ 
+SELECT * FROM Dystrybutor;
+ 
+ 
+--10) Tworzymy tabele przestawn1
