@@ -1,0 +1,254 @@
+--10.2
+ 
+SELECT imie, nazwisko,1.5*pensja AS nowa_pensja
+FROM pracownik
+ 
+--10.3
+ 
+SELECT imie, nazwisko, (pensja+COALESCE(dodatek,0))*0.01 AS procent FROM pracownik
+ORDER BY procent ASC
+ 
+--11.2
+ 
+SELECT TOP 4 imie, nazwisko FROM pracownik ORDER BY nazwisko ASC
+ 
+--11.3
+ 
+SELECT TOP 1 id_wypozyczenie, id_klient, id_samochod, id_pracow_wyp, id_pracow_odd, id_miejsca_wyp, id_miejsca_odd,
+data_wyp, data_odd,kaucja,cena_jedn FROM wypozyczenie ORDER BY id_wypozyczenie DESC
+ 
+--12.2
+ 
+SELECT data_zatr, DATEDIFF(dd,data_zatr,GETDATE()) as Day FROM pracownik ORDER BY Day DESC
+ 
+--12.3
+ 
+SELECT marka,typ,data_prod, DATEDIFF(yy,data_prod,GETDATE()) as Year FROM samochod ORDER BY Year DESC
+ 
+--13.2
+ 
+SELECT UPPER(LEFT(imie,1))+LOWER(SUBSTRING(imie,2,LEN(imie))), UPPER(LEFT(nazwisko,1))+LOWER(SUBSTRING(nazwisko,2,LEN(nazwisko))) FROM pracownik
+ 
+--13.3
+ 
+SELECT imie, nazwisko, STUFF(nr_karty_kredyt,5,LEN(nr_karty_kredyt),'xxxxxx') AS nr_karty FROM klient WHERE nr_karty_kredyt IS NOT NULL
+ 
+--14.2
+ 
+UPDATE klient SET imie='Jerzy',nazwisko='Nowak' WHERE id_klient=10;
+ 
+--14.3
+ 
+UPDATE pracownik SET pensja=pensja+100 WHERE pensja<1500;
+ 
+--15.2
+ 
+DELETE FROM wypozyczenie WHERE id_klient=17
+ 
+--15.3
+ 
+DELETE FROM samochod WHERE przebieg>60000
+ 
+--16.2
+ 
+INSERT INTO samochod (id_samochod,marka,typ,data_prod,kolor,poj_silnika,przebieg) VALUES (50,'Skoda','Octavia',
+'2012-09-01','srebrny',1896,5000);
+ 
+--16.3
+ 
+INSERT INTO pracownik(id_pracownik,imie,nazwisko,data_zatr,dzial,stanowisko,pensja,dodatek,id_miejsce,telefon)
+VALUES (12,'Alojzy','Mikos','2010-07-11','zaopatrzenie','magazynier',3000,50,1,'501-501-501');
+ 
+--17.2
+SELECT k.id_klient,k.imie,k.nazwisko,w.id_samochod,w.data_wyp, w.data_odd
+FROM klient k INNER JOIN wypozyczenie w ON k.id_klient=w.id_klient WHERE w.data_odd IS NULL ORDER BY k.nazwisko ASC
+ 
+--17.3
+ 
+SELECT k.id_klient, k.nazwisko, w.data_wyp, w.kaucja FROM klient k INNER JOIN wypozyczenie w
+ON k.id_klient=w.id_klient WHERE w.kaucja IS NOT NULL;
+ 
+--18.2
+ 
+SELECT m.ulica, m.numer, s.marka, s.typ FROM miejsce m INNER JOIN wypozyczenie w
+ON m.id_miejsce = w.id_miejsca_wyp INNER JOIN samochod s ON s.id_samochod = w.id_samochod ORDER BY
+m.ulica,m.numer,s.marka,s.typ ASC
+ 
+--18.3
+ 
+SELECT s.id_samochod, s.marka, s.typ, k.imie, k.nazwisko FROM samochod s INNER JOIN wypozyczenie w ON s.id_samochod = w.id_samochod
+INNER JOIN klient k ON w.id_wypozyczenie=k.id_klient ORDER BY s.id_samochod, k.nazwisko, k.imie ASC
+ 
+ 
+--19.2
+ 
+SELECT AVG(pensja)AS srednia_pensja FROM pracownik
+ 
+--19.3
+ 
+SELECT TOP 1 data_prod FROM samochod ORDER BY data_prod ASC
+ 
+--20.2
+ 
+SELECT s.marka,s.typ, s.id_samochod, COUNT(w.id_wypozyczenie) AS ilosc_wyp FROM samochod s LEFT JOIN
+wypozyczenie w ON s.id_samochod=w.id_samochod GROUP BY s.id_samochod, s.marka, s.typ ORDER BY ilosc_wyp ASC
+ 
+--20.3
+ 
+SELECT p.imie, p.nazwisko, COUNT(w.id_wypozyczenie) AS ilosc_wyp FROM pracownik p
+LEFT JOIN wypozyczenie w ON p.id_pracownik=w.id_pracow_wyp
+GROUP BY p.imie, p.nazwisko
+ORDER BY ilosc_wyp DESC
+ 
+--21.2
+ 
+SELECT s.id_samochod, s.marka, COUNT(w.id_wypozyczenie) AS ilosc_wyp FROM samochod s
+INNER JOIN wypozyczenie w ON s.id_samochod=w.id_samochod
+GROUP BY s.marka, s.typ, s.id_samochod
+HAVING COUNT(w.id_wypozyczenie)>= 5
+ORDER BY s.marka, s.typ ASC
+ 
+--21.3
+ 
+SELECT p.imie, p.nazwisko, COUNT(w.id_pracow_wyp)AS ilosc_wyp FROM pracownik p LEFT JOIN
+wypozyczenie w ON p.id_pracownik=w.id_pracow_wyp
+GROUP BY p.imie, p.nazwisko, w.id_pracow_wyp
+HAVING COUNT(w.id_pracow_wyp)<=20
+ORDER BY ilosc_wyp,p.nazwisko, p.imie ASC
+ 
+--22.2
+ 
+SELECT imie, nazwisko, pensja FROM pracownik WHERE pensja>(SELECT AVG(pensja)FROM pracownik)
+ 
+--22.3
+ 
+SELECT marka, typ, data_prod FROM samochod WHERE data_prod=(SELECT MIN(data_prod) FROM samochod)
+ 
+--23.2
+ 
+SELECT imie, nazwisko FROM klient WHERE id_klient NOT IN (SELECT DISTINCT id_klient FROM wypozyczenie)
+ORDER BY nazwisko, imie ASC
+ 
+--23.3
+ 
+SELECT imie, nazwisko FROM pracownik WHERE id_pracownik NOT IN (SELECT DISTINCT id_pracow_wyp FROM wypozyczenie)
+ 
+--24.2
+ 
+SELECT TOP 1 WITH TIES k.id_klient, k.imie, k.nazwisko, COUNT(w.id_wypozyczenie) AS ilosc_wyp
+FROM klient k INNER JOIN wypozyczenie w ON k.id_klient=w.id_klient
+GROUP BY k.id_klient,k.imie,k.nazwisko
+ORDER BY ilosc_wyp ASC
+ 
+--24.3
+ 
+SELECT TOP 1 WITH TIES p.id_pracownik, p.imie, p.nazwisko, COUNT(w.id_wypozyczenie) AS ilosc_wyp
+FROM pracownik p INNER JOIN wypozyczenie w ON p.id_pracownik=w.id_pracow_wyp
+GROUP BY p.id_pracownik,p.imie,p.nazwisko
+ORDER BY ilosc_wyp DESC, p.imie,p.nazwisko DESC
+ 
+ 
+--25.2
+UPDATE pracownik SET dodatek=dodatek+10 WHERE id_pracownik IN (SELECT DISTINCT id_pracow_wyp
+FROM wypozyczenie WHERE MONTH(data_wyp)=5)
+ 
+--25.3
+UPDATE pracownik SET pensja=pensja-(pensja*0.05) WHERE id_pracownik NOT IN (SELECT DISTINCT id_pracow_wyp
+FROM wypozyczenie WHERE YEAR(data_wyp)=1999)
+ 
+--26.2
+ 
+DELETE FROM samochod WHERE id_samochod NOT IN (SELECT DISTINCT id_samochod FROM wypozyczenie)
+ 
+--26.3
+ 
+DELETE FROM pracownik WHERE id_pracownik NOT IN (SELECT DISTINCT id_pracow_wyp FROM wypozyczenie)
+ 
+--27.2
+ 
+SELECT imie, nazwisko FROM klient
+INTERSECT
+SELECT imie, nazwisko FROM pracownik
+ 
+--27.3
+ 
+SELECT imie, nazwisko FROM klient
+EXCEPT
+SELECT imie, nazwisko FROM pracownik
+ORDER BY nazwisko, imie ASC
+
+--32.2
+ 
+CREATE PROCEDURE zwieksz_pensje
+@id_pracownik INT,
+@kwota INT
+AS
+BEGIN
+UPDATE pracownik
+SET pensja=pensja+@kwota
+WHERE id_pracownik=@id_pracownik
+END
+GO
+ 
+EXEC zwieksz_pensje 1, 8000
+ 
+--33.2
+ 
+ 
+33.1 --DROP FUNCTION dbo.aktywnosc_klienta;
+--GO
+CREATE FUNCTION dbo.aktywnosc_klienta (
+ @id_klient INT
+) RETURNS INT
+BEGIN
+RETURN (SELECT COUNT(*) FROM wypozyczenie
+ WHERE id_klient=@id_klient)
+END;
+GO
+SELECT dbo.aktywnosc_klienta(3) AS ile_wyp;
+ 
+DROP FUNCTION ile_wypozyczen
+CREATE FUNCTION ile_wypozyczen(
+@data_od DATE,
+@data_do DATE
+) RETURNS INT
+BEGIN
+RETURN (SELECT COUNT(*) FROM wypozyczenie WHERE data_wyp
+BETWEEN @data_od AND @data_do)
+END;
+GO
+ 
+SELECT dbo.ile_wypozyczen('2002-05-05','2014-09-12') AS ilosc
+ 
+--33.3
+ 
+CREATE FUNCTION roznica_pensji()
+RETURNS INT
+BEGIN
+ 
+RETURN(SELECT TOP 1 pensja FROM pracownik ORDER BY pensja DESC)-
+(SELECT TOP 1 pensja FROM pracownik ORDER BY pensja ASC)
+END;
+ 
+SELECT dbo.roznica_pensji()
+ 
+--34.2
+ 
+34.1 --DROP VIEW klient_raport;
+--GO
+CREATE VIEW klient_raport
+AS
+SELECT s.id_samochod, s.marka, s.typ, COUNT(w.id_samochod) AS "ilosc_wyp"
+FROM samochod s LEFT JOIN wypozyczenie w ON s.id_samochod=w.id_samochod
+GROUP BY s.id_samochod, s.marka, s.typ;
+GO
+SELECT * FROM klient_raport WHERE ilosc_wyp>1;
+ 
+CREATE VIEW samochod_raport
+AS
+SELECT s.id_samochod, s.marka, s.typ, COUNT(COALESCE(w.id_samochod,'0')) AS ilosc
+FROM samochod s LEFT JOIN wypozyczenie w ON s.id_samochod=w.id_samochod
+GROUP BY s.id_samochod, s.marka, s.typ;
+GO
+ 
+SELECT * FROM samochod_raport;
