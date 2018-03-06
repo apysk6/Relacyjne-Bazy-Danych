@@ -113,7 +113,7 @@ INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
 VALUES('Warszawa', 'Aleje Jerozolimskie', '55', 2, '02-011');
  
 INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
-VALUES('Kraków', 'Debowa', '40', 1, '43-300');
+VALUES('KrakÃ³w', 'Debowa', '40', 1, '43-300');
  
  
 INSERT INTO Menadzer(imie,nazwisko,telefon,Adres_id,staz)
@@ -271,7 +271,7 @@ INSERT INTO Album_Wydany(Album_id,Dystrybutor_id,Producent_id,Studio_Nagraniowe_
 VALUES(4, 3, 4, 2, 5);
  
 --1a) Tworzymy widok
---Widok bêdzie pokazywa³ artystów, którzy rezerwowali przynajmniej dwa razy studio nagraniowe przed 2013 rokiem.
+--Widok bÄ™dzie pokazywaÄ‡ artystÃ³w, ktÃ³rzy rezerwowali przynajmniej dwa razy studio nagraniowe przed 2013 rokiem.
  
 CREATE VIEW ilosc_albumow_artystow
 AS
@@ -281,14 +281,14 @@ GROUP BY a.imie, a.nazwisko
 HAVING COUNT(a.id)>=2;
  
  
---1b) Sprawdzenie, ¿e widok dzia³a
+--1b) Sprawdzenie, Â¿e widok dziaÂ³a
  
 SELECT imie, nazwisko, ilosc_rezerwacji
 FROM ilosc_albumow_artystow
 ORDER BY ilosc_rezerwacji ASC;
  
 --2a) Tworzymy funkcje 1
---Funkcja sprawdzaj¹ca czy dane studio ma wolny termin na rezerwacje po podaniu ID studia oraz daty.
+--Funkcja sprawdzajÄ…ca czy dane studio ma wolny termin na rezerwacje po podaniu ID studia oraz daty.
  
 CREATE FUNCTION dostepna_rezerwacja(id_studia INTEGER, p_data DATE) RETURNS VARCHAR(30)
 AS $$
@@ -307,12 +307,12 @@ END IF;
 END;
 $$ LANGUAGE plpgsql;
  
---2b) Sprawdzenie, ¿e funkcja 1 dzia³a
+--2b) Sprawdzenie, Å¼e funkcja 1 dziaÅ‚a
  
 SELECT * FROM dostepna_rezerwacja(5,'2009-01-01');
  
 --3a) Tworzymy funkcje 2
---Funkcja zwracaj¹ca ³¹czn¹ d³ugoœæ trwania albumów danego artysty.
+--Funkcja zwracajÄ…ca Å‚Ä…cznÄ… dÅ‚ugoÅ›Ä‡ trwania albumÃ³w danego artysty.
  
 CREATE FUNCTION dlugosc_albumow_artysty (id_artysty INTEGER) RETURNS INTEGER AS $$
 BEGIN
@@ -320,7 +320,7 @@ RETURN (SELECT SUM(dlugosc) AS laczna_dlugosc FROM Album WHERE $1=Artysta_id);
 END;
 $$ LANGUAGE plpgsql;
  
---3b) Sprawdzenie, ¿e funkcja 1 dzia³a
+--3b) Sprawdzenie, Å¼e funkcja 1 dziaÅ‚a.
  
 SELECT dlugosc_albumow_artysty(1);
  
@@ -335,14 +335,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
  
---4b) Sprawdzenie, ?e procedura 1 dzia3a
+--4b) Sprawdzenie, Å¼e procedura 1 dziaÅ‚a
  
 SELECT dodaj_artyste('Michal','Walcz',748548231,'rock',2,1,2002);
 SELECT * FROM Artysta;
  
 --5a) Tworzymy procedure 2
---Procedura ukazuje liste menadzerow ze stazem rownym i wiekszym niz wprowadzona wartosc.
---Niestety procedura nie dzia³a w poprawny sposób, jednak¿e nie by³em w stanie znaleŸæ rozwi¹zania problemu.
+--Procedura ukazuje liste menadzerow ze staÅ¼em rownym i wiekszym niz wprowadzona wartosc.
  
 CREATE FUNCTION lista_menadzerow(staz INT) RETURNS VOID AS $$
 BEGIN
@@ -395,15 +394,15 @@ BEFORE INSERT OR UPDATE OF miejscowosc,ulica,numer_budynku,numer_mieszkania,
 kod_pocztowy ON Adres
 FOR EACH ROW EXECUTE PROCEDURE duplikat_adres();
  
---6b) Sprawdzenie, ?e wyzwalacz 1 dzia3a
---Jeden ju¿ taki adres jest dodany, drugiego nie da siê dodaæ.
+--6b) Sprawdzenie, Å¼e wyzwalacz 1 dziaÅ‚a
+--Jeden juÅ¼ taki adres jest dodany, drugiego nie da siÄ™ dodaÄ‡.
  
 INSERT INTO Adres(miejscowosc,ulica,numer_budynku,numer_mieszkania,kod_pocztowy)
 VALUES('Berlin', 'Konstanzer Strasse', '71', 5, '35647');
  
 --7a) Tworzymy wyzwalacz 2
---Kazdy nowy dodany artysta ma otrzymywaa pocz1tkowy bonus o warto?ci 5,
---je?eli zostanie dodany mniejszy, ma bya on doprowadzony do wyniku 5.
+--KaÅ¼dy nowy dodany artysta ma otrzymywaÄ‡ poczÄ…tkowy bonus o wartoÅ›ci 5,
+--jeÅ¼eli zostanie dodany mniejszy, ma bya on doprowadzony do wyniku 5.
  
  
 CREATE FUNCTION zwieksz_bonus_artyscie()
@@ -424,7 +423,7 @@ AFTER INSERT OR UPDATE OF imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,
 bonus,rok_dolaczenia ON Artysta
 FOR EACH ROW EXECUTE PROCEDURE zwieksz_bonus_artyscie();
    
---7b) Sprawdzenie, ?e wyzwalacz 2 dzia3a
+--7b) Sprawdzenie, Å¼e wyzwalacz 2 dziaÅ‚a.
  
 INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,bonus, rok_dolaczenia)
 VALUES('Alvaro', 'Sofero', 6546234, 'pop', 5, 2,1,2014);
@@ -432,7 +431,7 @@ VALUES('Alvaro', 'Sofero', 6546234, 'pop', 5, 2,1,2014);
 SELECT * FROM Artysta;
  
 --8a) Tworzymy wyzwalacz 3
---Wyzwalacz nie pozwala dodaa artysty z rokiem dodania pó?niejszym ni? obecny.
+--Wyzwalacz nie pozwala dodaÄ‡ artysty z rokiem dodania pÃ³Åºniejszym niÅ¼ obecny.
  
  
 CREATE FUNCTION rok_dodania_artysty()
@@ -455,7 +454,7 @@ BEFORE INSERT OR UPDATE OF imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,
 bonus,rok_dolaczenia ON Artysta
 FOR EACH ROW EXECUTE PROCEDURE rok_dodania_artysty();
  
---8b) Sprawdzenie, ?e wyzwalacz 3 dzia3a
+--8b) Sprawdzenie, Å¼e wyzwalacz 3 dziaÅ‚a.
  
 INSERT INTO Artysta(imie,nazwisko,telefon,gatunek,Adresy_id, Menadzer_id,bonus,rok_dolaczenia)
 VALUES('Artur', 'Warkocz', 2435845, 'pop', 1, 2,8, 2018);
@@ -463,7 +462,7 @@ VALUES('Artur', 'Warkocz', 2435845, 'pop', 1, 2,8, 2018);
 SELECT * FROM Artysta;
  
 --9a) Tworzymy wyzwalacz 4
---Przyznajemy rabat dla dystrybutorow kwalifikuj1c ich ze wzgledu na kontynent.
+--Przyznajemy rabat dla dystrybutorÃ³w kwalifikujÄ…c ich ze wzglÄ™du na kontynent.
  
 CREATE FUNCTION rabat_dystrybutorow_kontynentowy()
 RETURNS TRIGGER AS $$
@@ -472,7 +471,7 @@ BEGIN
         UPDATE Dystrybutor SET rabat=10 WHERE id=NEW.id;
     END IF;
    
-    IF (NEW.kontynent='Ameryka Pó³nocna') THEN
+    IF (NEW.kontynent='Ameryka PÃ³Â³nocna') THEN
         UPDATE Dystrybutor SET rabat=15 WHERE id=NEW.id;
     END IF;
  
@@ -487,12 +486,9 @@ CREATE TRIGGER ins_rabat_dystrybutorow_kontynentowy
 AFTER INSERT OR UPDATE OF nazwa,kraj,telefon,email,Adres_id,kontynent ON Dystrybutor
 FOR EACH ROW EXECUTE PROCEDURE rabat_dystrybutorow_kontynentowy();
  
---9b) Sprawdzenie, ?e wyzwalacz 4 dzia3a
+--9b) Sprawdzenie, Å¼e wyzwalacz 4 dziaÅ‚a.
  
 INSERT INTO Dystrybutor(nazwa,kraj,telefon,email,Adres_id,kontynent)
 VALUES('Sony Music Japan', 'Japonia', 36523413, 'universal_ame@uni.com', 3,'Azja');
  
 SELECT * FROM Dystrybutor;
- 
- 
---10) Tworzymy tabele przestawn1
